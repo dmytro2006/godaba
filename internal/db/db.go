@@ -8,12 +8,15 @@ type Explorer interface {
 	ExecuteQuery(query string) ([]string, [][]string, error)
 }
 
-func NewExplorer(dbType, connection string) Explorer {
+func NewExplorer(dbType, connection string) (Explorer, error) {
 	switch dbType {
 	case "postgres":
 		exp := Postgres{}
-		exp.Connect(connection)
-		return &exp
+		err := exp.Connect(connection)
+		if err != nil {
+			return nil, err
+		}
+		return &exp, nil
 	}
-	return nil
+	return nil, UnknownDriverError{"Unknown DB driver: " + dbType}
 }
