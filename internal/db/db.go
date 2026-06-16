@@ -9,14 +9,18 @@ type Explorer interface {
 }
 
 func NewExplorer(dbType, connection string) (Explorer, error) {
+	var exp Explorer
 	switch dbType {
 	case "postgres":
-		exp := Postgres{}
-		err := exp.Connect(connection)
-		if err != nil {
-			return nil, err
-		}
-		return &exp, nil
+		exp = &Postgres{}
+	case "sqlite":
+		exp = &SQLite{}
+	default:
+		return nil, UnknownDriverError{"Unknown DB driver: " + dbType}
 	}
-	return nil, UnknownDriverError{"Unknown DB driver: " + dbType}
+	err := exp.Connect(connection)
+	if err != nil {
+		return nil, err
+	}
+	return exp, nil
 }
